@@ -2,6 +2,7 @@ package com.alfredo.gestionreservas.controller;
 
 import com.alfredo.gestionreservas.entity.Mesa;
 import com.alfredo.gestionreservas.repository.MesaRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,13 +23,13 @@ public class MesaController {
     }
 
     @PostMapping("/mesas")
-    public ResponseEntity<Mesa> crearMesa(@RequestBody Mesa mesa ){
+    public ResponseEntity<Mesa> crearMesa(@RequestBody @Valid Mesa mesa ){
         var mesaGuardada = mesaRepository.save(mesa);
         return ResponseEntity.status(HttpStatus.CREATED).body(mesaGuardada);
     }
 
     @PutMapping("/mesas/{id}")
-    public ResponseEntity<Mesa> editarMesa(@RequestBody Mesa nuevaMesa, @PathVariable Long id){
+    public ResponseEntity<Mesa> editarMesa(@RequestBody @Valid Mesa nuevaMesa, @PathVariable Long id){
         return mesaRepository.findById(id)
                 .map(mesa -> {
                     mesa.setNumeroMesa(nuevaMesa.getNumeroMesa());

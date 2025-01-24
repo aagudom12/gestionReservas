@@ -2,6 +2,7 @@ package com.alfredo.gestionreservas.controller;
 
 import com.alfredo.gestionreservas.entity.Cliente;
 import com.alfredo.gestionreservas.repository.ClienteRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,13 +23,13 @@ public class ClienteController {
     }
 
     @PostMapping("/clientes")
-    public ResponseEntity<Cliente> crearCliente(@RequestBody Cliente cliente){
+    public ResponseEntity<Cliente> crearCliente(@RequestBody @Valid Cliente cliente){
         var clienteGuardado = clienteRepository.save(cliente);
         return ResponseEntity.status(HttpStatus.CREATED).body(clienteGuardado);
     }
 
     @PutMapping("/clientes/{id}")
-    public ResponseEntity<Cliente> actualizarCliente(@PathVariable Long id, @RequestBody Cliente nuevoCliente){
+    public ResponseEntity<Cliente> actualizarCliente(@PathVariable Long id, @RequestBody @Valid Cliente nuevoCliente){
         return clienteRepository.findById(id)
                 .map(cliente -> {
                     cliente.setNombre(nuevoCliente.getNombre());

@@ -1,6 +1,7 @@
 package com.alfredo.gestionreservas.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,8 @@ public class Mesa {
 
     @Column(unique = true)
     private Long numeroMesa;
+
+    @NotBlank(message = "La descripción no puede estar en blanco")
     private String descripcion;
 
     @OneToMany(targetEntity = Reserva.class, cascade = CascadeType.ALL, mappedBy = "mesa")
