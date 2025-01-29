@@ -1,7 +1,9 @@
 package com.alfredo.gestionreservas.controller;
 
 import com.alfredo.gestionreservas.entity.Mesa;
+import com.alfredo.gestionreservas.entity.Reserva;
 import com.alfredo.gestionreservas.repository.MesaRepository;
+import com.alfredo.gestionreservas.repository.ReservaRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,12 +11,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class MesaController {
 
     @Autowired
     private MesaRepository mesaRepository;
+
+    @Autowired
+    private ReservaRepository reservaRepository;
 
     @GetMapping("/mesas")
     public ResponseEntity<List<Mesa>> obtenerMesas(){
@@ -49,5 +55,18 @@ public class MesaController {
                     return ResponseEntity.noContent().build();
                 })
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    //PARA AÑADIR UNA RESERVA A UNA MESA
+    @PostMapping("/mesas/{id}/reservas")
+    public ResponseEntity<Mesa> hacerReserva(@PathVariable Long id, @RequestBody Reserva reserva){
+        Optional<Mesa> mesa = mesaRepository.findById(id);
+        Optional<Reserva> reservaBD = reservaRepository.findById(reserva.getId());
+        if(mesa.isPresent() && reservaBD.isPresent()) {
+            mesa.get().getReservas().add(reservaBD.get());
+            mesaRepository.save(mesa.get());
+            return ResponseEntity.ok(mesa.get());
+        }
+        return ResponseEntity.notFound().build();
     }
 }

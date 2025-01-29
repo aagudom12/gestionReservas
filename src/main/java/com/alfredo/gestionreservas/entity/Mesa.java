@@ -1,5 +1,6 @@
 package com.alfredo.gestionreservas.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -26,6 +27,7 @@ public class Mesa {
     private String descripcion;
 
     @OneToMany(targetEntity = Reserva.class, cascade = CascadeType.ALL, mappedBy = "mesa")
+    @JsonIgnore
     private List<Reserva> reservas = new ArrayList<>();
 
     public Long getNumeroMesa() {
@@ -36,11 +38,27 @@ public class Mesa {
         return descripcion;
     }
 
+    public List<Reserva> getReservas() {
+        return reservas;
+    }
+
     public void setNumeroMesa(Long numeroMesa) {
         this.numeroMesa = numeroMesa;
     }
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    public void setReservas(List<Reserva> reservas) {
+        this.reservas = reservas;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }
