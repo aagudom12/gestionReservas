@@ -58,7 +58,7 @@ public class MesaController {
     }
 
     //PARA AÑADIR UNA RESERVA A UNA MESA
-    @PostMapping("/mesas/{id}/reservas")
+    /*@PostMapping("/mesas/{id}/reservas")
     public ResponseEntity<Mesa> hacerReserva(@PathVariable Long id, @RequestBody Reserva reserva){
         Optional<Mesa> mesa = mesaRepository.findById(id);
         Optional<Reserva> reservaBD = reservaRepository.findById(reserva.getId());
@@ -68,5 +68,5 @@ public class MesaController {
             return ResponseEntity.ok(mesa.get());
         }
         return ResponseEntity.notFound().build();
-    }
+    }*/
 }

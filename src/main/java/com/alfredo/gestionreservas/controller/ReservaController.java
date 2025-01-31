@@ -1,5 +1,6 @@
 package com.alfredo.gestionreservas.controller;
 
+import com.alfredo.gestionreservas.DTO.ReservaDTO;
 import com.alfredo.gestionreservas.entity.Cliente;
 import com.alfredo.gestionreservas.entity.Mesa;
 import com.alfredo.gestionreservas.entity.Reserva;
@@ -12,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -33,7 +36,7 @@ public class ReservaController {
     }
 
     @PostMapping("/reservas")
-    public ResponseEntity<Reserva> crearReserva(@RequestBody @Valid Reserva reserva ){
+    public ResponseEntity<?> crearReserva(@RequestBody @Valid Reserva reserva ){
         // Verificar que el cliente existe
         Cliente cliente = clienteRepository.findById(reserva.getCliente().getId())
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
@@ -41,6 +44,13 @@ public class ReservaController {
         // Verificar que la mesa existe
         Mesa mesa = mesaRepository.findById(reserva.getMesa().getId())
                 .orElseThrow(() -> new RuntimeException("Mesa no encontrada"));
+
+        boolean reservaExiste = reservaRepository.existsByMesaAndFechaAndHora(mesa, reserva.getFecha(), reserva.getHora());
+
+        if (reservaExiste) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("La mesa ya está reservada en esa fecha y hora. Elige otro horario.");
+        }
 
         // Asignar los objetos reales a la reserva
         reserva.setCliente(cliente);
@@ -74,5 +84,19 @@ public class ReservaController {
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/reservas/{fecha}")
+    public ResponseEntity<List<ReservaDTO>> obtenerReservasDeUnaFecha(@PathVariable String fecha){
+        List<ReservaDTO> reservasDTO = new ArrayList<>();
+
+        LocalDate fechaReserva = LocalDate.parse(fecha);
+
+        reservaRepository.findByFecha(fechaReserva).forEach(reserva -> {
+            reservasDTO.add(new ReservaDTO(reserva));
+        });
+
+        return ResponseEntity.ok(reservasDTO);
+    }
+
 
 }
