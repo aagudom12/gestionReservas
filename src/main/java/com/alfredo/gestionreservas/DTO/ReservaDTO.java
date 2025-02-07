@@ -9,8 +9,6 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public class ReservaDTO {
     private String nombreCliente;
