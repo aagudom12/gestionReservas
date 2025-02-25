@@ -17,6 +17,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 public class SecurityConfig {
@@ -40,7 +44,9 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())   //Se desabilita para las API ya que no se manejan sesiones sino con tokens
+        http
+                .cors(withDefaults())
+                .csrf(csrf -> csrf.disable()) // Deshabilitar CSRF porque usamos JWT
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) //Indicamos que no cree una sesión porque vamos a utilizar tokens
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
@@ -52,6 +58,30 @@ public class SecurityConfig {
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class); //Añadimos un filtro que intercepta cada petición HTTP para obtener el token JWK y validarlo
 
         return http.build();
+    }
+
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**") // Permitir CORS en todos los endpoints
+                        .allowedOrigins("*")  //.allowedOrigins("http://localhost:63342") Permitir cualquier origen o uno específico
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Métodos permitidos
+                        .allowedHeaders("*"); // Permitir todos los encabezados
+            }
+        };
+
+//              Si utilizamos credenciales (cookies, JWT, etc.) sería:
+//              registry.addMapping("/**") // Aplica CORS a todos los endpoints
+//                       .allowedOriginPatterns("*") // 🔥 Permitir cualquier origen CON credenciales
+//                       .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Métodos HTTP permitidos
+//                       .allowedHeaders("*") // Permitir cualquier encabezado (incluye Authorization para JWT)
+//                       .allowCredentials(true); // 🔥 Permitir credenciales como JWT en Authorization header
+//                  }
+//              };
+
+
     }
 
 }
