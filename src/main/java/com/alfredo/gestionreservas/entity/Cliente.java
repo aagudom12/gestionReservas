@@ -31,6 +31,10 @@ public class Cliente {
     private String email;
     private String telefono;
 
+    @OneToOne(mappedBy = "cliente", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private UserEntity usuario;
+
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Reserva> reservas = new ArrayList<>();
@@ -65,5 +69,13 @@ public class Cliente {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public UserEntity getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(UserEntity usuario) {
+        this.usuario = usuario;
     }
 }

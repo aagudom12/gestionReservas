@@ -7,13 +7,14 @@ import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 @Builder
 public class UserRegisterDTO {
     private String username;
     private String email;
     private String password;
     private String password2;
+    private String telefono;
+    private String nombre;
 
     public UserRegisterDTO() {
     }
@@ -53,5 +54,21 @@ public class UserRegisterDTO {
 
     public void setPassword2(String password2) {
         this.password2 = password2;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 }

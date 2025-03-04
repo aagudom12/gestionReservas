@@ -6,6 +6,8 @@ import com.alfredo.gestionreservas.DTO.UserRegisterDTO;
 import com.alfredo.gestionreservas.config.JwtTokenProvider;
 import com.alfredo.gestionreservas.entity.UserEntity;
 import com.alfredo.gestionreservas.repository.UserEntityRepository;
+import com.alfredo.gestionreservas.services.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +15,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,7 +35,10 @@ public class AuthController {
     @Autowired
     private AuthenticationManager authenticationManager;
 
-    @PostMapping("/auth/register")
+    @Autowired
+    private UserService userService;
+
+    /*@PostMapping("/auth/register")
     public ResponseEntity<Map<String, String>> save(@RequestBody UserRegisterDTO userDTO) {
         try {
             // Crear manualmente la entidad UserEntity
@@ -53,6 +59,22 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", "Email o username ya utilizado"));
+        }
+    }*/
+
+    @PostMapping("/auth/register")
+    public ResponseEntity<?> register(@RequestBody @Valid UserRegisterDTO userDTO) {
+        try {
+            UserEntity newUser = userService.registerUser(userDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(
+                    Map.of(
+                            "message", "Usuario registrado con éxito",
+                            "username", newUser.getUsername(),
+                            "email", newUser.getEmail()
+                    )
+            );
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         }
     }
 
@@ -81,4 +103,14 @@ public class AuthController {
             );
         }
     }
+
+    @GetMapping("/auth/user")
+    public ResponseEntity<?> getUserInfo(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Usuario no autenticado"));
+        }
+
+        return ResponseEntity.ok(Map.of("username", authentication.getName()));
+    }
+
 }

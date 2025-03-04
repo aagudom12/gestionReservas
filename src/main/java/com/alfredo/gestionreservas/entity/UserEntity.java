@@ -30,6 +30,11 @@ public class UserEntity implements UserDetails {
     private String password;
     private String foto;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "cliente_id", referencedColumnName = "id", unique = true)
+    private Cliente cliente;
+
+
 
     @Builder.Default    //Para que Lombok con el patrón builder cree el ArrayList
     @ElementCollection(fetch = FetchType.EAGER) // Indica que esta lista se almacena en una tabla separada, pero sin una relación
@@ -46,10 +51,11 @@ public class UserEntity implements UserDetails {
     public UserEntity() {
     }
 
-    public UserEntity(String email, String username, String password) {
+    public UserEntity(String email, String username, String password, Cliente cliente) {
         this.email = email;
         this.username = username;
         this.password = password;
+        this.cliente = cliente;
     }
 
     @Override
@@ -116,5 +122,13 @@ public class UserEntity implements UserDetails {
 
     public void setAuthorities(List<String> authorities) {
         this.authorities = authorities;
+    }
+
+    public Cliente getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
     }
 }

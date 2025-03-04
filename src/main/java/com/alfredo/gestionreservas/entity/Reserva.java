@@ -35,6 +35,10 @@ public class Reserva {
     private Integer numeroPersonas;
 
     @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false) // Asocia la reserva con el usuario
+    private UserEntity usuario;
+
+    @ManyToOne
     @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
 
@@ -88,5 +92,13 @@ public class Reserva {
 
     public void setMesa(Mesa mesa) {
         this.mesa = mesa;
+    }
+
+    public UserEntity getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(UserEntity usuario) {
+        this.usuario = usuario;
     }
 }

@@ -4,13 +4,16 @@ import com.alfredo.gestionreservas.DTO.ReservaDTO;
 import com.alfredo.gestionreservas.entity.Cliente;
 import com.alfredo.gestionreservas.entity.Mesa;
 import com.alfredo.gestionreservas.entity.Reserva;
+import com.alfredo.gestionreservas.entity.UserEntity;
 import com.alfredo.gestionreservas.repository.ClienteRepository;
 import com.alfredo.gestionreservas.repository.MesaRepository;
 import com.alfredo.gestionreservas.repository.ReservaRepository;
+import com.alfredo.gestionreservas.repository.UserEntityRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -27,6 +30,9 @@ public class ReservaController {
     private ClienteRepository clienteRepository;
 
     @Autowired
+    private UserEntityRepository userRepository;
+
+    @Autowired
     private MesaRepository mesaRepository;
 
     @GetMapping("/reservas")
@@ -40,6 +46,10 @@ public class ReservaController {
         // Verificar que el cliente existe
         Cliente cliente = clienteRepository.findById(reserva.getCliente().getId())
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+
+        // Verificar que el cliente existe
+        UserEntity usuario = userRepository.findById(reserva.getUsuario().getId())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         // Verificar que la mesa existe
         Mesa mesa = mesaRepository.findById(reserva.getMesa().getId())
@@ -55,6 +65,7 @@ public class ReservaController {
         // Asignar los objetos reales a la reserva
         reserva.setCliente(cliente);
         reserva.setMesa(mesa);
+        reserva.setUsuario(usuario);
 
         // Guardar reserva
         Reserva nuevaReserva = reservaRepository.save(reserva);
@@ -98,5 +109,17 @@ public class ReservaController {
         return ResponseEntity.ok(reservasDTO);
     }
 
+    @GetMapping("/mis-reservas")
+    public ResponseEntity<List<Reserva>> obtenerMisReservas(Authentication authentication) {
+        String username = authentication.getName(); // Obtiene el username del usuario autenticado
+        UserEntity usuario = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        System.out.println("Usuario encontrado en la BD: " + usuario.getUsername());
+
+        List<Reserva> misReservas = reservaRepository.findByUsuario(usuario);
+        System.out.println("Número de reservas encontradas: " + misReservas.size());
+        return ResponseEntity.ok(misReservas);
+    }
 
 }
