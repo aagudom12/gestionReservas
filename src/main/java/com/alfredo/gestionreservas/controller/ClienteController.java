@@ -1,11 +1,14 @@
 package com.alfredo.gestionreservas.controller;
 
 import com.alfredo.gestionreservas.entity.Cliente;
+import com.alfredo.gestionreservas.entity.UserEntity;
 import com.alfredo.gestionreservas.repository.ClienteRepository;
+import com.alfredo.gestionreservas.repository.UserEntityRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,6 +18,9 @@ public class ClienteController {
 
     @Autowired
     private ClienteRepository clienteRepository;
+
+    @Autowired
+    private UserEntityRepository userEntityRepository;
 
     @GetMapping("/clientes")
     public ResponseEntity<List<Cliente>> obtenerClientes(){
@@ -52,4 +58,24 @@ public class ClienteController {
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/clientes/mi-cliente")
+    public ResponseEntity<?> obtenerClienteId(@AuthenticationPrincipal UserEntity usuario) {
+        if (usuario == null) {
+            System.out.println("🔴 Usuario autenticado es NULL");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no autenticado");
+        }
+
+        System.out.println("🟢 Usuario autenticado: " + usuario.getUsername());
+
+        if (usuario.getCliente() == null) {
+            System.out.println("🔴 Usuario no tiene un cliente asociado");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El usuario no tiene un cliente asociado");
+        }
+
+        System.out.println("🟢 ID del cliente: " + usuario.getCliente().getId());
+        return ResponseEntity.ok(usuario.getCliente().getId());
+    }
+
+
 }

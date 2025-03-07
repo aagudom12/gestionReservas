@@ -6,12 +6,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public class LoginResponseDTO {
     private String username;
     private String token;
+    private Long clienteId;
+    private String clienteNombre;  // Agregamos el nombre del cliente
 
     public LoginResponseDTO() {
     }
@@ -19,6 +19,13 @@ public class LoginResponseDTO {
     public LoginResponseDTO(String username, String token) {
         this.username = username;
         this.token = token;
+    }
+
+    public LoginResponseDTO(String username, String token, Long clienteId, String clienteNombre) {
+        this.username = username;
+        this.token = token;
+        this.clienteId = clienteId;
+        this.clienteNombre = clienteNombre;  // Inicializamos el nombre del cliente
     }
 
     public String getUsername() {

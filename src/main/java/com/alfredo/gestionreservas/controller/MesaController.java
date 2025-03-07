@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,16 +58,16 @@ public class MesaController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    //PARA AÑADIR UNA RESERVA A UNA MESA
-    /*@PostMapping("/mesas/{id}/reservas")
-    public ResponseEntity<Mesa> hacerReserva(@PathVariable Long id, @RequestBody Reserva reserva){
-        Optional<Mesa> mesa = mesaRepository.findById(id);
-        Optional<Reserva> reservaBD = reservaRepository.findById(reserva.getId());
-        if(mesa.isPresent() && reservaBD.isPresent()) {
-            mesa.get().getReservas().add(reservaBD.get());
-            mesaRepository.save(mesa.get());
-            return ResponseEntity.ok(mesa.get());
+    @GetMapping("/mesas-disponibles")
+    public ResponseEntity<List<Mesa>> obtenerMesasDisponibles(@RequestParam("fecha") String fecha, @RequestParam("hora") String hora) {
+        LocalDate fechaReserva = LocalDate.parse(fecha);
+        // Obtén las mesas disponibles en la fecha y hora seleccionadas
+        List<Mesa> mesasDisponibles = mesaRepository.findMesasDisponibles(fechaReserva, hora);
+
+        if (mesasDisponibles.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(mesasDisponibles);
         }
-        return ResponseEntity.notFound().build();
-    }*/
+        return ResponseEntity.ok(mesasDisponibles);
+    }
+
 }

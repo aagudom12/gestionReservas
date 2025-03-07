@@ -43,13 +43,16 @@ public class ReservaController {
 
     @PostMapping("/reservas")
     public ResponseEntity<?> crearReserva(@RequestBody @Valid Reserva reserva ){
-        // Verificar que el cliente existe
-        Cliente cliente = clienteRepository.findById(reserva.getCliente().getId())
-                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
-
-        // Verificar que el cliente existe
+        // Verificar que el usuario existe
         UserEntity usuario = userRepository.findById(reserva.getUsuario().getId())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // Obtener el cliente desde el usuario
+        Cliente cliente = usuario.getCliente();
+        if (cliente == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("El usuario no tiene un cliente asociado.");
+        }
 
         // Verificar que la mesa existe
         Mesa mesa = mesaRepository.findById(reserva.getMesa().getId())
@@ -63,7 +66,7 @@ public class ReservaController {
         }
 
         // Asignar los objetos reales a la reserva
-        reserva.setCliente(cliente);
+        reserva.setCliente(cliente); // Se obtiene del usuario, no de la petición
         reserva.setMesa(mesa);
         reserva.setUsuario(usuario);
 
@@ -71,6 +74,7 @@ public class ReservaController {
         Reserva nuevaReserva = reservaRepository.save(reserva);
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevaReserva);
     }
+
 
     @PutMapping("/reservas/{id}")
     public ResponseEntity<Reserva> editarReserva(@RequestBody @Valid Reserva nuevaReserva, @PathVariable Long id){

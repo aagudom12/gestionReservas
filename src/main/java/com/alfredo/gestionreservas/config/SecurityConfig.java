@@ -52,7 +52,8 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/swagger-ui/**","/v3/api-docs/**","/swagger-resources/**").permitAll()
                         .anyRequest().authenticated()
-                );
+                )
+                .authenticationManager(authenticationManager(null, userDetailsService)); // Asegurar que se usa
 
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class); //Añadimos un filtro que intercepta cada petición HTTP para obtener el token JWK y validarlo
@@ -65,20 +66,20 @@ public class SecurityConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**") // Permitir CORS en todos los endpoints
-                        .allowedOrigins("*")  //.allowedOrigins("http://localhost:63342") Permitir cualquier origen o uno específico
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Métodos permitidos
-                        .allowedHeaders("*"); // Permitir todos los encabezados
+//              Si utilizamos credenciales (cookies, JWT, etc.) sería:
+                registry.addMapping("/**") // Aplica CORS a todos los endpoints
+                       .allowedOriginPatterns("*") // 🔥 Permitir cualquier origen CON credenciales
+                       .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Métodos HTTP permitidos
+                       .allowedHeaders("*") // Permitir cualquier encabezado (incluye Authorization para JWT)
+                       .allowCredentials(true); // 🔥 Permitir credenciales como JWT en Authorization header
             }
         };
 
-//              Si utilizamos credenciales (cookies, JWT, etc.) sería:
-//              registry.addMapping("/**") // Aplica CORS a todos los endpoints
-//                       .allowedOriginPatterns("*") // 🔥 Permitir cualquier origen CON credenciales
-//                       .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Métodos HTTP permitidos
-//                       .allowedHeaders("*") // Permitir cualquier encabezado (incluye Authorization para JWT)
-//                       .allowCredentials(true); // 🔥 Permitir credenciales como JWT en Authorization header
-//                  }
+//
+        //registry.addMapping("/**") // Permitir CORS en todos los endpoints
+                //.allowedOrigins("*")  //.allowedOrigins("http://localhost:63342") Permitir cualquier origen o uno específico
+                //.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Métodos permitidos
+                //.allowedHeaders("*"); // Permitir todos los encabezados
 //              };
 
 
